@@ -104,7 +104,8 @@ def simple_dag():
     # Flatten rows of JSON to  
     transform_products_raw = SnowflakeOperator(
         task_id = "transform_products_raw",
-        snowflake_conn_id = "snowflake_default",
+        #snowflake_conn_id = "snowflake_default",
+        snowfake_conn_id="Snowflake_Connection", # Connection for Astro deploy
         sql = 
         """
         -- Clear table before inserting. 
