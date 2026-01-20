@@ -65,7 +65,9 @@ def simple_dag():
     # Loads raw JSON list into S3 Bucket
     @task
     def load_to_S3(api_raw_json: list):
-        hook = S3Hook(aws_conn_id="aws_default")
+        #hook = S3Hook(aws_conn_id="aws_default") # Connection for local development
+
+        hook = S3Hook(aws_conn_id="aws_s3_connection") # Connection for Astro Deployment
   
         # Convert JSON to String
         api_raw_string = json.dumps(api_raw_json, indent=2)
@@ -81,7 +83,9 @@ def simple_dag():
     # Perform Copy into from S3 External Stage to Raw Schema
     copy_products_to_raw = SnowflakeOperator(
         task_id = "copy_products_to_raw",
-        snowflake_conn_id="snowflake_default",
+        #snowflake_conn_id="snowflake_default", # Connection for local dev 
+        snowfake_conn_id="Snowflake_Connection" # Connection for Astro deploy
+        
         sql =
         """
             USE SCHEMA BRONZE; 
