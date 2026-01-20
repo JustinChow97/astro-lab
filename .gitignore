@@ -1,0 +1,28 @@
+.git
+.env
+.DS_Store
+airflow_settings.yaml
+__pycache__/
+astro
+.venv
+airflow-webserver.pid
+webserver_config.py
+airflow.cfg
+airflow.db
+
+# Python
+__pycache__/
+*.pyc
+
+# Airflow
+airflow.db
+airflow-webserver.pid
+logs/
+
+# Astro
+.astro/
+.env
+
+# OS
+.DS_Store
+

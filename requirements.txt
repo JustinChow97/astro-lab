@@ -1,0 +1,9 @@
+# Astro Runtime includes the following pre-installed providers packages: https://www.astronomer.io/docs/astro/runtime-image-architecture#provider-packages
+
+# Include Amazon (AWS) as a Connection
+apache-airflow-providers-amazon
+
+# Include Snowflake as a Connection
+apache-airflow-providers-snowflake==5.1.0
+
+
