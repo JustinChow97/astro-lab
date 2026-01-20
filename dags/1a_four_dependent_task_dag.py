@@ -43,9 +43,22 @@ def simple_dag():
     # Fetches Data from the FakeStore API and returns as a JSON object. 
     @task
     def fetch_data():
-        url = "https://fakestoreapi.com/products"
-        response = requests.get(url)
+        headers = {
+                "User-Agent": "Mozilla/5.0 (compatible; Airflow/2.8)",
+                "Accept": "application/json",
+            }
+
+        response = requests.get(
+                "https://fakestoreapi.com/products",
+                headers=headers,
+                timeout=30,
+            )
         response.raise_for_status()
+
+
+        # url = "https://fakestoreapi.com/products"
+        # response = requests.get(url)
+        # response.raise_for_status()
         return(response.json())
 
     # Loads raw JSON list into S3 Bucket
@@ -69,15 +82,17 @@ def simple_dag():
         task_id = "copy_products_to_raw",
         snowflake_conn_id="snowflake_default",
         sql =
-        """ 
+        """
+            USE SCHEMA BRONZE; 
+            
             -- Clear table before inserting. 
             TRUNCATE TABLE IF EXISTS BRONZE.PRODUCTS;
-
-            COPY INTO SILVER.PRODUCTS
-            FROM @S3_EXTERNAL_STAGE/FAKESTORE/PRODUCT.JSON
+            
+            COPY INTO BRONZE.PRODUCTS
+            from @s3_external_stage/fakestore/product.json
             FILE_FORMAT = 'MY_JSON_FORMAT'
             FORCE = TRUE
-            ON_ERROR = 'CONTINUE';
+
         """
         )
     
@@ -99,7 +114,7 @@ def simple_dag():
             data:description::string AS description,
             data:category::string AS category,
             data:image::string AS image
-        FROM SILVER.PRODUCTS;
+        FROM BRONZE.PRODUCTS;
         """
     )
     
