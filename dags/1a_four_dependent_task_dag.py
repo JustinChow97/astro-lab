@@ -49,7 +49,8 @@ def simple_dag():
             }
 
         response = requests.get(
-                "https://fakestoreapi.com/products",
+                #"https://fakestoreapi.com/products",
+                "https://dummyjson.com/products",
                 headers=headers,
                 timeout=30,
             )
