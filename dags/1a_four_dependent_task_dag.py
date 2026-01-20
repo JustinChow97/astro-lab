@@ -84,7 +84,7 @@ def simple_dag():
     copy_products_to_raw = SnowflakeOperator(
         task_id = "copy_products_to_raw",
         #snowflake_conn_id="snowflake_default", # Connection for local dev 
-        snowfake_conn_id="Snowflake_Connection" # Connection for Astro deploy
+        snowfake_conn_id="Snowflake_Connection", # Connection for Astro deploy
         
         sql =
         """
