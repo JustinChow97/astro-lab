@@ -66,8 +66,6 @@ def simple_dag():
     # Loads raw JSON list into S3 Bucket
     @task
     def load_to_S3(api_raw_json: list):
-        #hook = S3Hook(aws_conn_id="aws_default") # Connection for local development
-
         hook = S3Hook(aws_conn_id="aws_s3_connection") # Connection for Astro Deployment
   
         # Convert JSON to String
@@ -76,31 +74,37 @@ def simple_dag():
         # Create an S3 Hook, create folder structure and load and name file. 
         hook.load_string (
             string_data = api_raw_string,
-            key="fakestore/product.json",
+            key="dataflow_analytics/product.json",
             bucket_name="astro-tech-assessment-jchow",
             replace=True,
         )
 
     # Perform Copy into from S3 External Stage to Raw Schema
     copy_products_to_raw = SnowflakeOperator(
-        task_id = "copy_products_to_raw",
-        #snowflake_conn_id="snowflake_default", # Connection for local dev 
-        snowflake_conn_id = "Snowflake_Connection", # Connection for Astro deploy
-        
-        sql =
-        """
+        task_id="copy_products_to_raw",
+        snowflake_conn_id="Snowflake_Connection",
+        sql="""
             USE SCHEMA BRONZE; 
             
             -- Clear table before inserting. 
             TRUNCATE TABLE IF EXISTS BRONZE.PRODUCTS;
             
             COPY INTO BRONZE.PRODUCTS
-            from @s3_external_stage/fakestore/product.json
-            FILE_FORMAT = 'MY_JSON_FORMAT'
+            FROM (
+                SELECT 
+                    $1:id::int as id,
+                    $1:title::string as title,
+                    $1:description::string as description,
+                    $1:price::float as price,
+                    $1:category::string as category,
+                    $1:image::string as image
+                FROM @s3_external_stage/dummyjson/products.json
+            )
+            FILE_FORMAT = (TYPE = 'JSON')
             FORCE = TRUE
+    """
+)
 
-        """
-        )
     
     # Flatten rows of JSON to  
     transform_products_raw = SnowflakeOperator(
