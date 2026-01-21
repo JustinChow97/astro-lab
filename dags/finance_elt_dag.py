@@ -73,7 +73,7 @@ def finance_elt_dag():
 
     extract_taskgroup = extract_taskgroup()
 
-    start >> extract_taskgroup >> load_to_S3 >> copy_to_bronze >> dbt_transform >> powerbi_refresh
+    start >> extract_taskgroup >> load_to_S3 >> copy_to_bronze >> dbt_transform >> powerbi_refresh >> end
 
 finance_elt_dag()
 
