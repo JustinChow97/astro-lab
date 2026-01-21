@@ -1,0 +1,88 @@
+"""
+## Real Use Case DAG
+
+This dag pulls data from the FakeStoreAPI, lands the data into S3, copies into Snowflake, then transforms for consumption
+
+The dag is as follows
+1. Fetch_API_Data
+2. Upload to S3
+3. Copy into Snowflake
+4. Transform
+
+"""
+
+import requests
+from airflow.sdk import dag, task, task_group
+from pendulum import datetime, duration
+from airflow.providers.standard.operators.empty import EmptyOperator
+
+from airflow.sdk import chain, chain_linear
+from airflow.providers.amazon.aws.hooks.s3 import S3Hook
+import json
+from airflow.providers.snowflake.operators.snowflake import SnowflakeOperator
+
+
+
+@dag(
+    start_date=datetime(2025, 1, 1),
+    schedule="@daily",
+    catchup=False,
+    doc_md=__doc__,
+    default_args={
+        "owner": "data_team",
+        "retries": 2,
+        "retry_delay": duration(minutes=5),
+    },
+    tags=["etl", "demo"],
+)
+def finance_elt_dag():
+
+    start = EmptyOperator(task_id = "start")
+    end = EmptyOperator(task_id = "end")
+
+
+    @task_group(group_id="api_extracts", tooltip="Parallel API Extractions")
+    def extract_taskgroup():
+        # NetSuite GL accounts extraction
+        extract_netsuite = EmptyOperator(task_id="extract_netsuite", queue="api-extracts")
+        
+        # Salesforce revenue pipeline  
+        extract_salesforce = EmptyOperator(task_id="extract_salesforce", queue="api-extracts")
+        
+        # Workday headcount
+        extract_workday = EmptyOperator(task_id="extract_workday", queue="api-extracts")
+        
+        # Asana project costs
+        extract_asana = EmptyOperator(task_id="extract_asana", queue="api-extracts")
+        
+        # All 4 run in parallel automatically within TaskGroup
+        extract_netsuite, extract_salesforce, extract_workday, extract_asana
+    
+
+    # Loads raw JSON list into S3 Bucket
+    load_to_S3 = EmptyOperator(task_id="load_to_s3")
+        
+    # Perform Copy into from S3 External Stage to Raw Schema
+    copy_to_bronze =  EmptyOperator(task_id="copy_to_bronze")
+
+    # Run dbt models to transform Bronze Tables to Silver then Gold
+    dbt_transform =  EmptyOperator(task_id="copy_to_bronze")
+
+    # Refresh PowerBI Semantic Model
+    powerbi_refresh = EmptyOperator(task_id="powerbi_refresh")
+
+    
+    
+    fetch_data = fetch_data()
+    load_to_S3 = load_to_S3(fetch_data)
+
+    start >> fetch_data >> load_to_S3 >> copy_to_bronze >> dbt_transform >> powerbi_refresh
+
+finance_elt_dag()
+
+
+# 1) extract_products_from_fakestore
+# 2) upload_products_to_s3
+# 3) load_products_to_raw
+# 4) transform_raw_products_to_silver
+# 5) aggregate_products_to_gold+

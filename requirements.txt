@@ -6,4 +6,6 @@ apache-airflow-providers-amazon
 # Include Snowflake as a Connection
 apache-airflow-providers-snowflake==5.1.0
 
+# Include Azure, to allow for PowerBI Refresh
+apache-airflow-providers-microsoft-azure
 

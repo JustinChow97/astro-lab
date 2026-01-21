@@ -42,12 +42,11 @@ def simple_dag():
 
     # Fetches Data from the FakeStore API and returns as a JSON object. 
     @task
-    def fetch_data():
+    def fetch_data(queue='api_extracts'):
         headers = {
                 "User-Agent": "Mozilla/5.0 (compatible; Airflow/2.8)",
                 "Accept": "application/json",
             }
-
         response = requests.get(
                 #"https://fakestoreapi.com/products",
                 "https://dummyjson.com/products",
@@ -56,11 +55,13 @@ def simple_dag():
             )
         response.raise_for_status()
 
-
         # url = "https://fakestoreapi.com/products"
         # response = requests.get(url)
         # response.raise_for_status()
         return(response.json())
+    
+
+    
 
     # Loads raw JSON list into S3 Bucket
     @task
@@ -73,7 +74,7 @@ def simple_dag():
         api_raw_string = json.dumps(api_raw_json, indent=2)
 
         # Create an S3 Hook, create folder structure and load and name file. 
-        hook.load_string(
+        hook.load_string (
             string_data = api_raw_string,
             key="fakestore/product.json",
             bucket_name="astro-tech-assessment-jchow",

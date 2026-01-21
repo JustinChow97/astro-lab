@@ -26,11 +26,13 @@ def parallel_dag():
 
     @task
     def extract_budget_data():
-        return ("Successfully extracted Budgeting Data from Quickbooks API.")
+        return ("Successfully ext   racted Budgeting Data from Quickbooks API.")
 
     @task
     def extract_people_data():
         return ("Succescfully extracted People Data")
+    
+    
 
 
     extract_sales_data()
