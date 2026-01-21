@@ -98,7 +98,7 @@ def simple_dag():
                     $1:price::float as price,
                     $1:category::string as category,
                     $1:image::string as image
-                FROM @s3_external_stage/dummyjson/products.json
+                FROM @s3_external_stage/dataflow_analytics/product.json
             )
             FILE_FORMAT = (TYPE = 'JSON')
             FORCE = TRUE
