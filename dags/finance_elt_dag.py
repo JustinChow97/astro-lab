@@ -20,7 +20,7 @@ from airflow.sdk import chain, chain_linear
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 import json
 from airflow.providers.snowflake.operators.snowflake import SnowflakeOperator
-
+from airflow.utils.task_group import TaskGroup
 
 
 @dag(
@@ -35,29 +35,43 @@ from airflow.providers.snowflake.operators.snowflake import SnowflakeOperator
     },
     tags=["etl", "demo"],
 )
-def finance_elt_dag():
 
-    start = EmptyOperator(task_id = "start")
-    end = EmptyOperator(task_id = "end")
-
-
-    @task_group(group_id="api_extracts", tooltip="Parallel API Extractions")
-    def extract_taskgroup():
+def extract_taskgroup():
+    with TaskGroup(group_id="extracts", tooltip="Parallel API extractions") as tg:
         # NetSuite GL accounts extraction
-        extract_netsuite = EmptyOperator(task_id="extract_netsuite", queue="api-extracts")
+        extract_netsuite = EmptyOperator(
+            task_id="extract_netsuite", 
+            queue="api-extracts",
+            # Custom success message via on_success_callback
+            on_success_callback=lambda context: print("Successfully Extract Data from NetSuite")
+        )
         
         # Salesforce revenue pipeline  
-        extract_salesforce = EmptyOperator(task_id="extract_salesforce", queue="api-extracts")
+        extract_salesforce = EmptyOperator(
+            task_id="extract_salesforce", 
+            queue="api-extracts",
+            on_success_callback=lambda context: print("Successfully Extract Data from Salesforce")
+        )
         
         # Workday headcount
-        extract_workday = EmptyOperator(task_id="extract_workday", queue="api-extracts")
+        extract_workday = EmptyOperator(
+            task_id="extract_workday", 
+            queue="api-extracts",
+            on_success_callback=lambda context: print("Successfully Extract Data from Workday")
+        )
         
         # Asana project costs
-        extract_asana = EmptyOperator(task_id="extract_asana", queue="api-extracts")
+        extract_asana = EmptyOperator(
+            task_id="extract_asana", 
+            queue="api-extracts",
+            on_success_callback=lambda context: print("Successfully Extract Data from Asana")
+        )
         
         # All 4 run in parallel automatically within TaskGroup
-        extract_netsuite, extract_salesforce, extract_workday, extract_asana
+        [extract_netsuite, extract_salesforce, extract_workday, extract_asana]
     
+    return tg
+
 
     # Loads raw JSON list into S3 Bucket
     load_to_S3 = EmptyOperator(task_id="load_to_s3")
@@ -70,6 +84,8 @@ def finance_elt_dag():
 
     # Refresh PowerBI Semantic Model
     powerbi_refresh = EmptyOperator(task_id="powerbi_refresh")
+
+    #data_quality = EmptyOperator(task_id="powerbi_refresh")
 
     extract_taskgroup = extract_taskgroup()
 
