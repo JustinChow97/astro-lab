@@ -66,7 +66,7 @@ def finance_elt_dag():
     copy_to_bronze =  EmptyOperator(task_id="copy_to_bronze")
 
     # Run dbt models to transform Bronze Tables to Silver then Gold
-    dbt_transform =  EmptyOperator(task_id="copy_to_bronze")
+    dbt_transform =  EmptyOperator(task_id="dbt_transform")
 
     # Refresh PowerBI Semantic Model
     powerbi_refresh = EmptyOperator(task_id="powerbi_refresh")
