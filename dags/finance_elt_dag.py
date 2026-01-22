@@ -82,9 +82,11 @@ def finance_elt_dag():
 
     new_task = EmptyOperator(task_id="new_task")
 
+    new_task_2 = EmptyOperator(task_id="new_task_2")
+
     extract_taskgroup = extract_taskgroup()
 
-    start >> extract_taskgroup >> load_to_S3 >> copy_to_bronze >> dbt_transform >> powerbi_refresh >> new_task >> end
+    start >> extract_taskgroup >> load_to_S3 >> copy_to_bronze >> dbt_transform >> powerbi_refresh >> new_task >> new_task_2 >> end
 
 finance_elt_dag()
 
