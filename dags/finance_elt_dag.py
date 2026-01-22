@@ -11,6 +11,7 @@ The dag is as follows
 
 """
 
+from xxlimited import new
 import requests
 from airflow.sdk import dag, task, task_group
 from pendulum import datetime, duration
@@ -33,7 +34,7 @@ from airflow.providers.snowflake.operators.snowflake import SnowflakeOperator
         "retries": 2,
         "retry_delay": duration(minutes=5),
     },
-    tags=["etl", "demo"],
+    tags=["elt", "demo"],
 )
 def finance_elt_dag():
 
@@ -79,9 +80,11 @@ def finance_elt_dag():
     # Refresh PowerBI Semantic Model
     powerbi_refresh = EmptyOperator(task_id="powerbi_refresh")
 
+    new_task = EmptyOperator(task_id="new_task")
+
     extract_taskgroup = extract_taskgroup()
 
-    start >> extract_taskgroup >> load_to_S3 >> copy_to_bronze >> dbt_transform >> powerbi_refresh >> end
+    start >> extract_taskgroup >> load_to_S3 >> copy_to_bronze >> dbt_transform >> powerbi_refresh >> new_task >> end
 
 finance_elt_dag()
 
