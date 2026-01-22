@@ -25,7 +25,7 @@ from airflow.providers.snowflake.operators.snowflake import SnowflakeOperator
 
 @dag(
     start_date=datetime(2025, 1, 1),
-    schedule="@daily",
+    schedule="0 9 * * *",
     catchup=False,
     doc_md=__doc__,
     default_args={
