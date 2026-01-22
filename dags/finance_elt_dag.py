@@ -87,13 +87,6 @@ def finance_elt_dag():
     #new_task = EmptyOperator(task_id="new_task")
     #start >> extract_taskgroup >> load_to_S3 >> copy_to_bronze >> dbt_transform >> powerbi_refresh >> new_task >> end
 
-    
 
 finance_elt_dag()
 
-
-# 1) extract_products_from_fakestore
-# 2) upload_products_to_s3
-# 3) load_products_to_raw
-# 4) transform_raw_products_to_silver
-# 5) aggregate_products_to_gold+
