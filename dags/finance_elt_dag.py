@@ -79,13 +79,9 @@ def finance_elt_dag():
     # Refresh PowerBI Semantic Model
     powerbi_refresh = EmptyOperator(task_id="powerbi_refresh")
 
-    new_task = EmptyOperator(task_id="new_task")
-
-    new_task_2 = EmptyOperator(task_id="new_task_2")
-
     extract_taskgroup = extract_taskgroup()
 
-    start >> extract_taskgroup >> load_to_S3 >> copy_to_bronze >> dbt_transform >> powerbi_refresh >> new_task >> new_task_2 >> end
+    start >> extract_taskgroup >> load_to_S3 >> copy_to_bronze >> dbt_transform >> powerbi_refresh >> end
 
 finance_elt_dag()
 
