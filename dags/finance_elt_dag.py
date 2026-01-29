@@ -82,13 +82,13 @@ def finance_elt_dag():
 
     extract_taskgroup = extract_taskgroup()
 
-    # Test comment
-
-    start >> extract_taskgroup >> load_to_S3 >> copy_to_bronze >> dbt_transform >> powerbi_refresh >> end
 
 
-    #new_task = EmptyOperator(task_id="new_task")
-    #start >> extract_taskgroup >> load_to_S3 >> copy_to_bronze >> dbt_transform >> powerbi_refresh >> new_task >> end
+    #start >> extract_taskgroup >> load_to_S3 >> copy_to_bronze >> dbt_transform >> powerbi_refresh >> end
+
+
+    new_task = EmptyOperator(task_id="new_task")
+    start >> extract_taskgroup >> load_to_S3 >> copy_to_bronze >> dbt_transform >> powerbi_refresh >> new_task >> end
 
 
 finance_elt_dag()
